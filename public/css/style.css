@@ -100,7 +100,7 @@ body { font-family: 'Inter', system-ui, sans-serif; background: #f0f2f5; color: 
 .login-container{width:100%;max-width:440px}
 .login-card{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.4)}
 .login-header{background:var(--avr-black);padding:24px;text-align:center}
-.login-banner{max-width:240px;max-height:70px;object-fit:contain;filter:brightness(0) invert(1)}
+.login-banner{max-width:260px;max-height:80px;object-fit:contain;border-radius:6px}
 .login-body{padding:36px}
 .login-title{font-size:20px;font-weight:700;margin-bottom:4px}
 .progress-bar.bg-avr{background-color:var(--avr-red)!important}
