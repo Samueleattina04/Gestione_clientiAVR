@@ -6,16 +6,21 @@
 @endsection
 @section('content')
 <div class="card-avr">
-  <div class="card-header-avr d-flex align-items-center justify-content-between flex-wrap gap-2">
-    <span><i class="bi bi-list-ul me-2"></i> Lista Clienti <span class="badge bg-avr ms-1">{{ $customers->total() }}</span></span>
-    <form class="d-flex gap-2" method="GET">
-      <div class="input-group input-group-sm" style="width:280px">
+  <div class="card-header-avr">
+    <div class="d-flex align-items-center justify-content-between w-100 mb-2">
+      <span><i class="bi bi-list-ul me-2"></i> Lista Clienti <span class="badge bg-avr ms-1">{{ $customers->total() }}</span></span>
+      <div class="d-flex gap-2">
+        <a href="{{ route('customers.import.form') }}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-upload me-1"></i><span class="d-none d-sm-inline">Importa</span></a>
+        <a href="{{ route('customers.export') }}" class="btn btn-sm btn-outline-success"><i class="bi bi-download me-1"></i><span class="d-none d-sm-inline">Excel</span></a>
+      </div>
+    </div>
+    <form method="GET">
+      <div class="input-group input-group-sm">
         <span class="input-group-text"><i class="bi bi-search"></i></span>
         <input type="text" name="q" class="form-control" placeholder="Cerca nome, email, azienda…" value="{{ $q }}">
         @if($q)<a href="{{ route('customers.index') }}" class="btn btn-outline-secondary"><i class="bi bi-x"></i></a>@endif
+        <button type="submit" class="btn btn-outline-secondary">Cerca</button>
       </div>
-      <a href="{{ route('customers.import.form') }}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-upload me-1"></i>Importa</a>
-      <a href="{{ route('customers.export') }}" class="btn btn-sm btn-outline-success"><i class="bi bi-download me-1"></i>Excel</a>
     </form>
   </div>
   <div class="table-responsive">
