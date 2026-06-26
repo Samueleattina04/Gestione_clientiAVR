@@ -102,7 +102,11 @@ class CustomerController extends Controller {
         $request->validate(['file' => 'required|mimes:xlsx,xls|max:10240']);
         $import = new CustomersImport;
         Excel::import($import, $request->file('file'));
-        $count = $import->getRowCount();
-        return redirect()->route('customers.index')->with('success', "$count clienti importati con successo!");
+        $s = $import->getStats();
+        $msg = "Import completato: {$s['customers_created']} clienti creati, {$s['customers_skipped']} già presenti, {$s['subscriptions_created']} abbonamenti importati";
+        if ($s['licenses_created'] > 0) {
+            $msg .= ", {$s['licenses_created']} licenze create automaticamente";
+        }
+        return redirect()->route('customers.index')->with('success', $msg . '.');
     }
 }
