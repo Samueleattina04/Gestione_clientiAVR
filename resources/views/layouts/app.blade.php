@@ -61,6 +61,9 @@
         </button>
       </form>
     </div>
+    <div class="text-center mt-2" style="font-size:10px;color:rgba(255,255,255,.3)">
+      Powered by Samuele Attinà
+    </div>
   </div>
 </div>
 

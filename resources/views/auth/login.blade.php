@@ -46,6 +46,7 @@
     </div>
   </div>
   <p class="text-center text-white-50 mt-4 small">&copy; {{ date('Y') }} A.V.R. Informatica — Assistenza e Consulenza IT</p>
+  <p class="text-center mt-1 small" style="color:rgba(255,255,255,.25)">Powered by Samuele Attinà</p>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>function togglePass(){const i=document.getElementById('passInput'),e=document.getElementById('eyeIcon');i.type=i.type==='password'?'text':'password';e.className=i.type==='password'?'bi bi-eye':'bi bi-eye-slash';}</script>
