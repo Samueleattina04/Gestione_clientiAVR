@@ -5,6 +5,9 @@
 <div style="max-width:620px;margin:30px auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.1)">
 
   {{-- Header colorato per urgenza --}}
+  <div style="background:#1A1A1A;padding:20px 32px;text-align:center">
+    <img src="{{ config('app.url') }}/img/banner.png" alt="{{ config('avr.reseller_name') }}" style="max-height:60px;max-width:260px">
+  </div>
   <div style="background:{{ $monthsLeft<=1?'#C8102E':($monthsLeft<=3?'#fd7e14':'#0d6efd') }};padding:28px 32px;text-align:center">
     <h1 style="color:#fff;margin:0;font-size:22px">&#9200; Promemoria Scadenza Abbonamento</h1>
     <p style="color:rgba(255,255,255,.9);margin:8px 0 0;font-size:14px">{{ config('avr.reseller_name') }} &mdash; Gestione Licenze Microsoft 365</p>
