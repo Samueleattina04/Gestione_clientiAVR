@@ -53,7 +53,7 @@
         @empty
         <tr><td colspan="7" class="text-center py-5 text-muted">
           <i class="bi bi-person-x fs-1"></i>
-          <p class="mt-2">Nessun cliente trovato@if($q) per "{{ $q }}"@endif</p>
+          <p class="mt-2">Nessun cliente trovato{{ $q ? ' per "'.$q.'"' : '' }}</p>
           <a href="{{ route('customers.create') }}" class="btn btn-avr btn-sm"><i class="bi bi-person-plus me-1"></i>Aggiungi Cliente</a>
         </td></tr>
         @endforelse
