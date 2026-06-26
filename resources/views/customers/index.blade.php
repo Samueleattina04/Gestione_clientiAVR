@@ -20,18 +20,19 @@
   </div>
   <div class="table-responsive">
     <table class="table table-hover avr-table mb-0">
-      <thead><tr><th>#</th><th>Nome</th><th>Azienda</th><th>Email</th><th>Telefono</th><th>Abbonamenti</th><th>Azioni</th></tr></thead>
+      <thead><tr><th class="d-mobile-none">#</th><th>Nome</th><th class="d-mobile-none">Azienda</th><th class="d-none d-md-table-cell">Email</th><th class="d-none d-lg-table-cell">Telefono</th><th>Abbonamenti</th><th>Azioni</th></tr></thead>
       <tbody>
         @forelse($customers as $c)
         <tr>
-          <td class="text-muted small">{{ $c->id }}</td>
+          <td class="text-muted small d-mobile-none">{{ $c->id }}</td>
           <td>
             <a href="{{ route('customers.show', $c) }}" class="fw-600 text-dark text-decoration-none customer-name-link">{{ $c->full_name }}</a>
+            @if($c->company)<div class="text-muted small d-md-none">{{ $c->company }}</div>@endif
             @if($c->city)<div class="text-muted small"><i class="bi bi-geo-alt"></i> {{ $c->city }}</div>@endif
           </td>
-          <td>{{ $c->company ?: '—' }}</td>
-          <td><a href="mailto:{{ $c->email }}" class="text-decoration-none">{{ $c->email }}</a></td>
-          <td>{{ $c->phone ?: '—' }}</td>
+          <td class="d-mobile-none">{{ $c->company ?: '—' }}</td>
+          <td class="d-none d-md-table-cell"><a href="mailto:{{ $c->email }}" class="text-decoration-none">{{ $c->email }}</a></td>
+          <td class="d-none d-lg-table-cell">{{ $c->phone ?: '—' }}</td>
           <td>
             @if($c->active_subscriptions_count > 0)
               <span class="badge bg-success">{{ $c->active_subscriptions_count }} attiv{{ $c->active_subscriptions_count === 1 ? 'o' : 'i' }}</span>

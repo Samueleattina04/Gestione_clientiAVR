@@ -5,7 +5,7 @@
   <a href="{{ route('subscriptions.export') }}" class="btn btn-sm btn-outline-success"><i class="bi bi-file-earmark-excel me-1"></i>Excel</a>
 @endsection
 @section('content')
-<div class="d-flex gap-2 mb-4 flex-wrap">
+<div class="filter-scroll mb-4">
   @foreach([[30,'30 giorni'],[60,'60 giorni'],[90,'90 giorni'],[180,'6 mesi'],[365,'1 anno']] as [$d,$l])
   <a href="{{ route('reports.expiring',['days'=>$d]) }}" class="btn btn-sm {{ $days==$d ? 'btn-avr' : 'btn-outline-secondary' }}">{{ $l }}</a>
   @endforeach

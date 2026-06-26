@@ -3,10 +3,17 @@ document.addEventListener('DOMContentLoaded', function () {
   const sidebar = document.getElementById('sidebar');
   if (toggle && sidebar) {
     toggle.addEventListener('click', () => sidebar.classList.toggle('open'));
+    // Chiude sidebar cliccando fuori su mobile
     document.addEventListener('click', e => {
       if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
         if (!sidebar.contains(e.target) && !toggle.contains(e.target)) sidebar.classList.remove('open');
       }
+    });
+    // Chiude sidebar cliccando su un link di navigazione su mobile
+    sidebar.querySelectorAll('.nav-link').forEach(link => {
+      link.addEventListener('click', () => {
+        if (window.innerWidth <= 768) sidebar.classList.remove('open');
+      });
     });
   }
   document.querySelectorAll('.alert').forEach(a => setTimeout(() => { try { bootstrap.Alert.getOrCreateInstance(a).close(); } catch(e){} }, 5000));

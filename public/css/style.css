@@ -112,4 +112,95 @@ body { font-family: 'Inter', system-ui, sans-serif; background: #f0f2f5; color: 
 .alert-info{background:#dbeafe;color:#1e40af}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .card-avr,.kpi-card,.welcome-banner{animation:fadeIn .3s ease forwards}
-@media(max-width:768px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0);box-shadow:0 0 0 9999px rgba(0,0,0,.5)}.main-content{margin-left:0}.sidebar-toggle{display:block}.topbar{padding:0 14px}.page-content{padding:16px}}
+/* ── RESPONSIVE MOBILE ───────────────────────────────────── */
+@media(max-width:768px){
+  /* Sidebar */
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0);box-shadow:0 0 0 9999px rgba(0,0,0,.5)}
+  .main-content{margin-left:0}
+  .sidebar-toggle{display:block}
+
+  /* Topbar */
+  .topbar{padding:0 12px;gap:8px}
+  .topbar-title{font-size:13px}
+  .topbar-actions .btn{font-size:12px;padding:5px 10px}
+  .topbar-actions .btn span, .topbar-actions .btn-text{display:none}
+
+  /* Padding pagina */
+  .page-content{padding:12px}
+  .px-4{padding-left:12px!important;padding-right:12px!important}
+
+  /* KPI cards: 2 per riga su mobile */
+  .kpi-value{font-size:26px}
+  .kpi-card{padding:14px}
+  .kpi-icon{font-size:22px;margin-bottom:4px}
+
+  /* Welcome banner */
+  .welcome-banner{padding:16px}
+  .welcome-banner h4{font-size:16px}
+  .welcome-banner p{font-size:12px}
+
+  /* Tabelle: scroll orizzontale */
+  .table-responsive{-webkit-overflow-scrolling:touch}
+  .avr-table thead th{font-size:11px;padding:8px 10px}
+  .avr-table tbody td{font-size:13px;padding:10px}
+
+  /* Nasconde colonne meno importanti su mobile */
+  .d-mobile-none{display:none!important}
+
+  /* Card */
+  .card-header-avr{font-size:13px;padding:12px 14px}
+
+  /* Form */
+  .login-body{padding:24px 20px}
+  .login-title{font-size:18px}
+
+  /* Bottoni azioni tabella: solo icona */
+  .btn-action-text{display:none}
+
+  /* Revenue boxes */
+  .revenue-value{font-size:18px}
+
+  /* Quick actions: 2 per riga */
+  .quick-action-btn{padding:12px 8px;font-size:12px}
+  .quick-action-btn i{font-size:20px}
+
+  /* Sub cards */
+  .sub-card-body .row>div{margin-bottom:8px}
+
+  /* Report filtri: scrollabili */
+  .filter-scroll{display:flex;overflow-x:auto;gap:6px;flex-wrap:nowrap;padding-bottom:4px}
+  .filter-scroll .btn{white-space:nowrap;flex-shrink:0}
+
+  /* Paginazione */
+  .pagination .page-link{padding:6px 10px;font-size:13px}
+
+  /* Form labels */
+  .form-label{font-size:12px}
+  .form-control,.form-select{font-size:14px}
+
+  /* Note box */
+  .note-box{font-size:12px}
+
+  /* Upload area */
+  .upload-area{padding:24px 16px}
+}
+
+@media(max-width:480px){
+  /* Topbar titolo ancora più corto */
+  .topbar-title{font-size:12px}
+
+  /* KPI: font più piccolo */
+  .kpi-value{font-size:22px}
+  .kpi-label{font-size:11px}
+
+  /* Bottoni avr */
+  .btn-avr{font-size:13px;padding:7px 14px}
+
+  /* Welcome banner ancora più compatto */
+  .welcome-banner{padding:12px 14px}
+  .welcome-banner h4{font-size:15px}
+
+  /* Tabella email status: compatta */
+  .email-status-col{font-size:11px}
+}
