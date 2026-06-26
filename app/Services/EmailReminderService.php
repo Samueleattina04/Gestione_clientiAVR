@@ -7,7 +7,7 @@ use App\Mail\SubscriptionReminder;
 class EmailReminderService {
     public function sendReminder(Subscription $subscription, int $months): array {
         $results = [];
-        $resellerEmail = config('mail.reseller_email');
+        $resellerEmail = config('avr.reseller_email');
         $customerEmail = $subscription->customer->email;
 
         foreach ([['customer', $customerEmail], ['reseller', $resellerEmail]] as [$type, $email]) {

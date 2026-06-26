@@ -6,7 +6,7 @@ Route::get('login', [App\Http\Controllers\Auth\LoginController::class, 'showLogi
 Route::post('login', [App\Http\Controllers\Auth\LoginController::class, 'login']);
 Route::post('logout', [App\Http\Controllers\Auth\LoginController::class, 'logout'])->name('logout');
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', \App\Http\Middleware\DailyReminderCheck::class])->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
     // Customers
