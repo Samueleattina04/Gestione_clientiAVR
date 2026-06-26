@@ -12,7 +12,7 @@
       <p class="mb-0 opacity-75">{{ now()->locale('it')->isoFormat('dddd D MMMM YYYY') }} — Pannello A.V.R. Informatica</p>
     </div>
     <div class="col-auto d-none d-md-block">
-      <img src="{{ asset('img/banner.png') }}" height="60" alt="A.V.R. Informatica" style="filter:brightness(0) invert(1);border-radius:4px">
+      <img src="{{ asset('img/logo.png') }}" height="60" alt="A.V.R. Informatica" style="border-radius:8px;background:#fff;padding:4px">
     </div>
   </div>
 </div>
