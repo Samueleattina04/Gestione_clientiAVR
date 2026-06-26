@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% block title %}Nuovo Abbonamento — A.V.R. Informatica{% endblock %}
+{% block page_title %}<i class="bi bi-plus-circle-fill me-2 text-avr"></i> Nuovo Abbonamento{% endblock %}
+
+{% block content %}
+<form method="POST">
+  <div class="card-avr" style="max-width:750px">
+    <div class="card-header-avr"><i class="bi bi-collection me-2"></i> Dati Abbonamento</div>
+    <div class="p-4">
+      <div class="row g-3">
+        <div class="col-12">
+          <label class="form-label required-label">Cliente</label>
+          <select name="customer_id" class="form-select" required>
+            <option value="">— Seleziona cliente —</option>
+            {% for c in customers %}
+            <option value="{{ c.id }}" {% if request.args.get('customer_id') == c.id|string %}selected{% endif %}>
+              {{ c.full_name }}{% if c.company %} — {{ c.company }}{% endif %}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-12">
+          <label class="form-label required-label">Licenza</label>
+          <select name="license_type_id" id="licenseSelect" class="form-select" required>
+            <option value="">— Seleziona licenza —</option>
+            {% for lic in licenses %}
+            <option value="{{ lic.id }}" data-pm="{{ lic.price_monthly }}" data-py="{{ lic.price_yearly }}">
+              {{ lic.name }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-4">
+          <label class="form-label required-label">Quantità</label>
+          <input type="number" name="quantity" id="quantity" class="form-control" value="1" min="1" required>
+        </div>
+        <div class="col-8">
+          <label class="form-label">Ciclo Fatturazione</label>
+          <select name="billing_cycle" id="billingCycle" class="form-select">
+            <option value="yearly">Annuale</option>
+            <option value="monthly">Mensile</option>
+          </select>
+        </div>
+        <div class="col-6">
+          <label class="form-label required-label">Data Inizio</label>
+          <input type="date" name="start_date" id="startDate" class="form-control" required>
+        </div>
+        <div class="col-6">
+          <label class="form-label required-label">Data Scadenza</label>
+          <input type="date" name="end_date" id="endDate" class="form-control" required>
+        </div>
+        <div class="col-12">
+          <label class="form-label">Prezzo Personalizzato (€)</label>
+          <div class="input-group">
+            <span class="input-group-text">€</span>
+            <input type="number" name="custom_price" id="customPrice" class="form-control" step="0.01" placeholder="Lascia vuoto per prezzo di listino">
+          </div>
+          <div class="form-text" id="priceHint">Seleziona una licenza per vedere il prezzo</div>
+        </div>
+        <div class="col-6">
+          <label class="form-label">Tenant ID Microsoft</label>
+          <input type="text" name="microsoft_tenant_id" class="form-control" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
+        </div>
+        <div class="col-6">
+          <label class="form-label">Subscription ID Microsoft</label>
+          <input type="text" name="microsoft_subscription_id" class="form-control" placeholder="ID dal pannello admin">
+        </div>
+        <div class="col-12">
+          <label class="form-label">Note</label>
+          <textarea name="notes" class="form-control" rows="2" placeholder="Note sull'abbonamento…"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="d-flex gap-2 mt-4">
+    <button type="submit" class="btn btn-avr px-4"><i class="bi bi-check-lg me-2"></i> Salva</button>
+    <a href="{{ url_for('subscriptions') }}" class="btn btn-outline-secondary px-4">Annulla</a>
+  </div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const licSelect = document.getElementById('licenseSelect');
+const qtyInput = document.getElementById('quantity');
+const cycleSelect = document.getElementById('billingCycle');
+const startDate = document.getElementById('startDate');
+const endDate = document.getElementById('endDate');
+const priceHint = document.getElementById('priceHint');
+
+const today = new Date();
+startDate.value = today.toISOString().split('T')[0];
+const next = new Date(today); next.setFullYear(next.getFullYear() + 1);
+endDate.value = next.toISOString().split('T')[0];
+
+function updatePrice() {
+  const opt = licSelect.options[licSelect.selectedIndex];
+  if (!opt.value) { priceHint.textContent = 'Seleziona una licenza per vedere il prezzo'; return; }
+  const pm = parseFloat(opt.dataset.pm), py = parseFloat(opt.dataset.py);
+  const qty = parseInt(qtyInput.value) || 1, cycle = cycleSelect.value;
+  const price = cycle === 'monthly' ? pm * qty : py * qty;
+  priceHint.textContent = `Listino: €${price.toFixed(2)} ${cycle === 'monthly' ? '/ mese' : '/ anno'}`;
+}
+licSelect.addEventListener('change', updatePrice);
+qtyInput.addEventListener('input', updatePrice);
+cycleSelect.addEventListener('change', () => {
+  updatePrice();
+  const s = new Date(startDate.value);
+  if (cycleSelect.value === 'monthly') s.setMonth(s.getMonth() + 1);
+  else s.setFullYear(s.getFullYear() + 1);
+  endDate.value = s.toISOString().split('T')[0];
+});
+startDate.addEventListener('change', () => {
+  const s = new Date(startDate.value);
+  if (cycleSelect.value === 'monthly') s.setMonth(s.getMonth() + 1);
+  else s.setFullYear(s.getFullYear() + 1);
+  endDate.value = s.toISOString().split('T')[0];
+});
+</script>
+{% endblock %}

@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% block title %}{{ customer.full_name }} — A.V.R. Informatica{% endblock %}
+{% block page_title %}<i class="bi bi-person-fill me-2 text-avr"></i> {{ customer.full_name }}{% endblock %}
+
+{% block topbar_actions %}
+  <a href="{{ url_for('customer_edit', id=customer.id) }}" class="btn btn-sm btn-outline-secondary">
+    <i class="bi bi-pencil me-1"></i> Modifica
+  </a>
+  <a href="{{ url_for('subscription_add') }}?customer_id={{ customer.id }}" class="btn btn-sm btn-avr">
+    <i class="bi bi-plus-circle me-1"></i> Aggiungi Abbonamento
+  </a>
+{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  <!-- Customer info card -->
+  <div class="col-12 col-xl-4">
+    <div class="card-avr">
+      <div class="card-header-avr"><i class="bi bi-person-vcard me-2"></i> Dati Cliente</div>
+      <div class="p-4">
+        <div class="customer-avatar mb-3">
+          {{ customer.first_name[0] }}{{ customer.last_name[0] }}
+        </div>
+        <h5 class="fw-700 mb-1">{{ customer.full_name }}</h5>
+        {% if customer.company %}<p class="text-muted mb-3">{{ customer.company }}</p>{% endif %}
+
+        <ul class="info-list">
+          <li><i class="bi bi-envelope"></i> <a href="mailto:{{ customer.email }}">{{ customer.email }}</a></li>
+          {% if customer.phone %}
+          <li><i class="bi bi-telephone"></i> <a href="tel:{{ customer.phone }}">{{ customer.phone }}</a></li>
+          {% endif %}
+          {% if customer.city %}
+          <li><i class="bi bi-geo-alt"></i> {{ customer.address and customer.address + ', ' or '' }}{{ customer.city }}</li>
+          {% endif %}
+          {% if customer.fiscal_code %}
+          <li><i class="bi bi-card-text"></i> CF: {{ customer.fiscal_code }}</li>
+          {% endif %}
+          {% if customer.vat_number %}
+          <li><i class="bi bi-building"></i> P.IVA: {{ customer.vat_number }}</li>
+          {% endif %}
+        </ul>
+
+        {% if customer.notes %}
+        <div class="note-box mt-3">
+          <i class="bi bi-sticky-fill me-1 text-warning"></i> {{ customer.notes }}
+        </div>
+        {% endif %}
+
+        <div class="mt-3 text-muted small">
+          Cliente dal {{ customer.created_at.strftime('%d/%m/%Y') }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Subscriptions -->
+  <div class="col-12 col-xl-8">
+    <div class="card-avr">
+      <div class="card-header-avr d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-collection me-2"></i> Abbonamenti</span>
+        <a href="{{ url_for('subscription_add') }}" class="btn btn-sm btn-avr">
+          <i class="bi bi-plus me-1"></i> Aggiungi
+        </a>
+      </div>
+
+      {% if customer.subscriptions %}
+      <div class="p-3">
+        {% for sub in customer.subscriptions %}
+        <div class="sub-card sub-{{ sub.expiry_class }} mb-3">
+          <div class="sub-card-header">
+            <div>
+              <span class="fw-600">{{ sub.license_type.name }}</span>
+              <span class="text-muted ms-2">× {{ sub.quantity }}</span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <span class="badge-expiry badge-{{ sub.expiry_class }}">
+                {% if sub.status == 'cancelled' %}Annullato
+                {% elif sub.status == 'expired' %}Scaduto
+                {% elif sub.status == 'suspended' %}Sospeso
+                {% elif sub.expiry_class == 'critical' %}Critico
+                {% elif sub.expiry_class == 'warning' %}Attenzione
+                {% elif sub.expiry_class == 'soon' %}Presto
+                {% else %}Attivo{% endif %}
+              </span>
+              <a href="{{ url_for('subscription_edit', id=sub.id) }}" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-pencil"></i>
+              </a>
+            </div>
+          </div>
+          <div class="sub-card-body">
+            <div class="row g-2">
+              <div class="col-6 col-md-3">
+                <div class="sub-info-label">Inizio</div>
+                <div class="sub-info-value">{{ sub.start_date.strftime('%d/%m/%Y') }}</div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="sub-info-label">Scadenza</div>
+                <div class="sub-info-value fw-600">{{ sub.end_date.strftime('%d/%m/%Y') }}</div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="sub-info-label">Giorni rimasti</div>
+                <div class="sub-info-value">{{ sub.days_to_expiry }}</div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="sub-info-label">Prezzo</div>
+                <div class="sub-info-value fw-600">€{{ '%.2f'|format(sub.effective_price) }}</div>
+              </div>
+            </div>
+            {% if sub.notes %}
+            <div class="note-box mt-2"><i class="bi bi-sticky me-1"></i> {{ sub.notes }}</div>
+            {% endif %}
+            <div class="mt-2 d-flex gap-2">
+              <form method="POST" action="{{ url_for('send_manual_reminder', id=sub.id) }}" class="d-inline">
+                <button type="submit" class="btn btn-sm btn-outline-primary">
+                  <i class="bi bi-envelope me-1"></i> Invia Promemoria
+                </button>
+              </form>
+              <form method="POST" action="{{ url_for('subscription_delete', id=sub.id) }}"
+                    onsubmit="return confirm('Annullare questo abbonamento?')">
+                <button type="submit" class="btn btn-sm btn-outline-danger">
+                  <i class="bi bi-x-circle me-1"></i> Annulla
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="text-center py-5 text-muted">
+        <i class="bi bi-collection fs-1"></i>
+        <p class="mt-2">Nessun abbonamento</p>
+        <a href="{{ url_for('subscription_add') }}" class="btn btn-avr btn-sm">
+          <i class="bi bi-plus me-1"></i> Aggiungi
+        </a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
