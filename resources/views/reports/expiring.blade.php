@@ -21,7 +21,7 @@
   <div class="card-header-avr"><i class="bi bi-list me-2"></i>Scadenze entro {{ $days }} giorni <span class="badge bg-avr ms-2">{{ $subs->count() }}</span></div>
   <div class="table-responsive">
     <table class="table table-hover avr-table mb-0">
-      <thead><tr><th>Cliente</th><th>Licenza</th><th>Scadenza</th><th>Giorni</th><th>Prezzo</th><th>Urgenza</th><th>Azioni</th></tr></thead>
+      <thead><tr><th>Cliente</th><th>Licenza</th><th>Scadenza</th><th>Giorni</th><th>Prezzo</th><th>Urgenza</th><th>Email inviate</th><th>Azioni</th></tr></thead>
       <tbody>
         @foreach($subs as $sub)
         <tr>
@@ -31,8 +31,21 @@
           <td><span class="fw-700 {{ $sub->days_to_expiry<=30?'text-danger':($sub->days_to_expiry<=90?'text-warning':'text-info') }}">{{ $sub->days_to_expiry }}</span></td>
           <td>€{{ number_format($sub->effective_price,2,',','.') }}</td>
           <td><span class="badge-expiry badge-{{ $sub->expiry_class }}">{{ $sub->expiry_class==='critical'?'🔴 Critico':($sub->expiry_class==='warning'?'🟠 Attenzione':'🟡 Presto') }}</span></td>
+          <td>
+            <div class="d-flex flex-column gap-1" style="font-size:12px">
+              <span title="Promemoria 6 mesi" class="{{ $sub->reminder_6m_sent ? 'text-success' : 'text-muted' }}">
+                <i class="bi bi-{{ $sub->reminder_6m_sent ? 'check-circle-fill' : 'circle' }} me-1"></i>6 mesi
+              </span>
+              <span title="Promemoria 1 mese" class="{{ $sub->reminder_1m_sent ? 'text-success' : 'text-muted' }}">
+                <i class="bi bi-{{ $sub->reminder_1m_sent ? 'check-circle-fill' : 'circle' }} me-1"></i>1 mese
+              </span>
+              <span title="Promemoria 1 settimana" class="{{ $sub->reminder_1w_sent ? 'text-success' : 'text-muted' }}">
+                <i class="bi bi-{{ $sub->reminder_1w_sent ? 'check-circle-fill' : 'circle' }} me-1"></i>1 sett.
+              </span>
+            </div>
+          </td>
           <td><div class="d-flex gap-1">
-            <form method="POST" action="{{ route('subscriptions.remind',$sub) }}">@csrf<button type="submit" class="btn btn-sm btn-avr"><i class="bi bi-envelope-fill me-1"></i>Invia</button></form>
+            <form method="POST" action="{{ route('subscriptions.remind',$sub) }}">@csrf<button type="submit" class="btn btn-sm btn-avr" title="Invia promemoria ora"><i class="bi bi-envelope-fill me-1"></i>Invia</button></form>
             <a href="{{ route('subscriptions.edit',$sub) }}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></a>
           </div></td>
         </tr>

@@ -78,11 +78,23 @@ class SubscriptionController extends Controller {
     }
 
     public function sendReminder(Subscription $subscription) {
-        $days   = $subscription->days_to_expiry;
-        $months = max(1, (int) round($days / 30));
+        $days    = $subscription->days_to_expiry;
+        $months  = max(1, (int) round($days / 30));
         $service = new EmailReminderService;
         $results = $service->sendReminder($subscription, $months);
         $ok = collect($results)->where('success', true)->count();
+
+        // Aggiorna il flag corrispondente così l'automatico non rimanda
+        if ($ok > 0) {
+            if ($days >= 150) {
+                $subscription->update(['reminder_6m_sent' => true]);
+            } elseif ($days >= 14) {
+                $subscription->update(['reminder_1m_sent' => true]);
+            } else {
+                $subscription->update(['reminder_1w_sent' => true]);
+            }
+        }
+
         $msg = "Promemoria inviato a $ok/" . count($results) . " destinatari.";
         return back()->with($ok > 0 ? 'success' : 'danger', $msg);
     }
