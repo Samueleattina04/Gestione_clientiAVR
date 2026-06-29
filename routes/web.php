@@ -6,6 +6,11 @@ Route::get('login', [App\Http\Controllers\Auth\LoginController::class, 'showLogi
 Route::post('login', [App\Http\Controllers\Auth\LoginController::class, 'login']);
 Route::post('logout', [App\Http\Controllers\Auth\LoginController::class, 'logout'])->name('logout');
 
+Route::get('forgot-password',         [App\Http\Controllers\Auth\ForgotPasswordController::class, 'showForm'])->name('password.request');
+Route::post('forgot-password',        [App\Http\Controllers\Auth\ForgotPasswordController::class, 'sendLink'])->name('password.email');
+Route::get('reset-password/{token}',  [App\Http\Controllers\Auth\ResetPasswordController::class, 'showForm'])->name('password.reset');
+Route::post('reset-password',         [App\Http\Controllers\Auth\ResetPasswordController::class, 'reset'])->name('password.update');
+
 Route::middleware(['auth', \App\Http\Middleware\DailyReminderCheck::class])->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
