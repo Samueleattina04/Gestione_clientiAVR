@@ -7,7 +7,10 @@ class LicenseTypeController extends Controller {
         $licenses = LicenseType::orderBy('category')->orderBy('name')->get()->groupBy('category');
         return view('licenses.index', compact('licenses'));
     }
-    public function create() { return view('licenses.create'); }
+    public function create() {
+        $categories = LicenseType::distinct()->orderBy('category')->pluck('category');
+        return view('licenses.create', compact('categories'));
+    }
     public function store(Request $request) {
         $data = $request->validate([
             'name'          => 'required|string|max:100|unique:license_types',
@@ -19,7 +22,10 @@ class LicenseTypeController extends Controller {
         LicenseType::create($data);
         return redirect()->route('licenses.index')->with('success', "Licenza \"{$data['name']}\" aggiunta!");
     }
-    public function edit(LicenseType $license) { return view('licenses.edit', compact('license')); }
+    public function edit(LicenseType $license) {
+        $categories = LicenseType::distinct()->orderBy('category')->pluck('category');
+        return view('licenses.edit', compact('license', 'categories'));
+    }
     public function update(Request $request, LicenseType $license) {
         $data = $request->validate([
             'name'          => 'required|string|max:100|unique:license_types,name,' . $license->id,

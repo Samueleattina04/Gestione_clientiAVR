@@ -54,6 +54,9 @@
         <div class="fw-600 text-truncate small text-white">{{ auth()->user()->name }}</div>
         <div style="font-size:11px;color:rgba(255,255,255,.5)">Amministratore</div>
       </div>
+      <a href="{{ route('admin.settings') }}" class="btn btn-sm p-1" title="Impostazioni" style="color:rgba(255,255,255,.6)">
+        <i class="bi bi-gear-fill fs-5"></i>
+      </a>
       <form method="POST" action="{{ route('logout') }}">
         @csrf
         <button type="submit" class="btn btn-sm text-danger p-1" title="Esci">

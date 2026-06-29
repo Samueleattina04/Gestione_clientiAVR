@@ -8,7 +8,7 @@
   <div class="p-4">
     <div class="row g-3">
       <div class="col-12"><label class="form-label required-label">Nome Licenza</label><input type="text" name="name" class="form-control" value="{{ old('name',$license->name) }}" required></div>
-      <div class="col-12"><label class="form-label">Categoria</label><input type="text" name="category" class="form-control" value="{{ old('category',$license->category) }}" list="cats"><datalist id="cats"><option value="Microsoft 365"><option value="Microsoft 365 Enterprise"><option value="Office 365"><option value="Exchange"><option value="Teams"><option value="Azure"></datalist></div>
+      @include('licenses._category_field', ['currentCategory' => old('category', $license->category)])
       <div class="col-12"><label class="form-label">Descrizione</label><textarea name="description" class="form-control" rows="2">{{ old('description',$license->description) }}</textarea></div>
       <div class="col-6"><label class="form-label">Prezzo Mensile (€)</label><div class="input-group"><span class="input-group-text">€</span><input type="number" name="price_monthly" class="form-control" step="0.01" value="{{ old('price_monthly',$license->price_monthly) }}"></div></div>
       <div class="col-6"><label class="form-label">Prezzo Annuale (€)</label><div class="input-group"><span class="input-group-text">€</span><input type="number" name="price_yearly" class="form-control" step="0.01" value="{{ old('price_yearly',$license->price_yearly) }}"></div></div>
