@@ -1,320 +1,455 @@
 # Guida all'Installazione — Gestionale A.V.R. Informatica
-
-Guida completa per installare il gestionale licenze Microsoft 365 su Windows.
-
----
-
-## Requisiti
-
-Prima di iniziare, assicurati di avere installato:
-
-| Software | Versione minima | Download |
-|----------|----------------|---------|
-| PHP | 8.2 o superiore | https://windows.php.net/download (Thread Safe, x64) |
-| Composer | ultima versione | https://getcomposer.org/Composer-Setup.exe |
-| MySQL | 8.0 o superiore | https://dev.mysql.com/downloads/installer/ |
-| Git | ultima versione | https://git-scm.com/download/win |
-| Node.js | 18 o superiore (opzionale) | https://nodejs.org |
+### Server Linux · host.it Reseller · Dominio su Filehost
 
 ---
 
-## Passo 1 — Installa PHP
+## Versioni richieste
 
-1. Scarica PHP (versione **Thread Safe x64**) da https://windows.php.net/download
-2. Estrai la cartella in `C:\php`
-3. Rinomina `php.ini-development` in `php.ini`
-4. Apri `php.ini` con Blocco Note e cerca e **decommenta** (rimuovi il `;` davanti) queste righe:
-   ```
-   extension=curl
-   extension=fileinfo
-   extension=gd
-   extension=mbstring
-   extension=mysqli
-   extension=openssl
-   extension=pdo_mysql
-   extension=zip
-   ```
-5. Aggiungi PHP al PATH di Windows:
-   - Cerca "Variabili d'ambiente" nel menu Start
-   - Variabili di sistema → `Path` → Modifica → Nuovo → `C:\php`
-6. Verifica aprendo un nuovo terminale:
-   ```
-   php -v
-   ```
-   Deve mostrare la versione di PHP.
+| Software | Versione minima | Consigliata |
+|----------|----------------|-------------|
+| PHP | **8.2** | 8.3 |
+| MySQL | **8.0** | 8.0 |
+| Composer | 2.x | ultima |
+| Git | qualsiasi | ultima |
+| Web server | Apache 2.4 o Nginx | Apache 2.4 |
 
 ---
 
-## Passo 2 — Installa Composer
+## Panoramica del processo
 
-1. Scarica e lancia `Composer-Setup.exe`
-2. Durante l'installazione punta all'eseguibile `C:\php\php.exe`
-3. Verifica:
-   ```
-   composer -V
-   ```
-
----
-
-## Passo 3 — Installa MySQL
-
-1. Scarica MySQL Installer da https://dev.mysql.com/downloads/installer/
-2. Scegli **MySQL Server** durante l'installazione
-3. Scegli una password per l'utente `root` e **annotala**
-4. Verifica:
-   ```
-   mysql -u root -p
-   ```
-   Inserisci la password → se entra, MySQL funziona.
+1. Acquisto dominio su Filehost
+2. Configurazione server Linux su host.it
+3. Installazione software (PHP, MySQL, Apache, Composer, Git)
+4. Download e configurazione del gestionale
+5. Configurazione email SMTP Microsoft
+6. Primo accesso
 
 ---
 
-## Passo 4 — Scarica il progetto
+## Passo 1 — Acquisto dominio su Filehost
 
-Apri il terminale (PowerShell o CMD) nella cartella dove vuoi installare il gestionale (es. `C:\`) e lancia:
+1. Vai su **filehost.it** e cerca il dominio desiderato (es. `avrgestionale.it`)
+2. Acquistalo e vai nel pannello di gestione DNS
+3. Crea un record **A** che punta all'IP del tuo server host.it:
+   ```
+   Tipo: A
+   Nome: @ (o il sottodominio, es. gestionale)
+   Valore: IP_DEL_TUO_SERVER
+   TTL: 3600
+   ```
+4. Se usi un sottodominio (es. `gestionale.avrinformatica.it`), crea il record A con nome `gestionale`
+
+> ⏱️ La propagazione DNS può richiedere da 15 minuti a 24 ore.
+
+---
+
+## Passo 2 — Accesso al server host.it
+
+Accedi al server tramite SSH dal terminale:
 
 ```bash
-git clone https://github.com/samueleattina04/gestione_clientiavr.git
-cd gestione_clientiavr
+ssh root@IP_DEL_TUO_SERVER
+```
+
+Oppure usa le credenziali che ti ha fornito host.it nel pannello reseller.
+
+---
+
+## Passo 3 — Aggiornamento sistema
+
+Prima di tutto aggiorna il sistema:
+
+```bash
+apt update && apt upgrade -y
 ```
 
 ---
 
-## Passo 5 — Installa le dipendenze PHP
+## Passo 4 — Installazione Apache
 
 ```bash
-composer install
+apt install -y apache2
+systemctl enable apache2
+systemctl start apache2
 ```
 
-Attendi il completamento (scarica tutti i pacchetti necessari).
+Abilita i moduli necessari per Laravel:
+
+```bash
+a2enmod rewrite headers expires deflate
+systemctl restart apache2
+```
+
+Verifica aprendo `http://IP_DEL_TUO_SERVER` nel browser — deve apparire la pagina di default di Apache.
 
 ---
 
-## Passo 6 — Crea il database
+## Passo 5 — Installazione PHP 8.3
 
-Apri MySQL dal terminale:
+```bash
+apt install -y software-properties-common
+add-apt-repository ppa:ondrej/php -y
+apt update
+apt install -y php8.3 php8.3-cli php8.3-fpm php8.3-mysql php8.3-mbstring \
+    php8.3-xml php8.3-curl php8.3-zip php8.3-gd php8.3-bcmath php8.3-intl \
+    libapache2-mod-php8.3
+```
+
+Verifica:
+
+```bash
+php -v
+```
+
+Deve mostrare `PHP 8.3.x`.
+
+---
+
+## Passo 6 — Installazione MySQL 8.0
+
+```bash
+apt install -y mysql-server
+systemctl enable mysql
+systemctl start mysql
+```
+
+Esegui la configurazione sicura:
+
+```bash
+mysql_secure_installation
+```
+
+Rispondi alle domande:
+- **Validate password plugin?** → `n`
+- **Set root password?** → `y` → inserisci una password sicura e **annotala**
+- **Remove anonymous users?** → `y`
+- **Disallow root login remotely?** → `y`
+- **Remove test database?** → `y`
+- **Reload privilege tables?** → `y`
+
+Crea il database per il gestionale:
 
 ```bash
 mysql -u root -p
 ```
 
-Poi esegui:
+Poi dentro MySQL:
 
 ```sql
 CREATE DATABASE avr_gestionale CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER 'avr_user'@'localhost' IDENTIFIED BY 'ScegliunaPasswordSicura!';
+GRANT ALL PRIVILEGES ON avr_gestionale.* TO 'avr_user'@'localhost';
+FLUSH PRIVILEGES;
 EXIT;
 ```
 
 ---
 
-## Passo 7 — Configura il file .env
-
-Copia il file di esempio:
+## Passo 7 — Installazione Composer
 
 ```bash
-copy .env.example .env
+curl -sS https://getcomposer.org/installer | php
+mv composer.phar /usr/local/bin/composer
+chmod +x /usr/local/bin/composer
 ```
 
-Poi apri `.env` con Blocco Note o qualsiasi editor di testo e compila i campi:
+Verifica:
+
+```bash
+composer -V
+```
+
+---
+
+## Passo 8 — Installazione Git
+
+```bash
+apt install -y git
+```
+
+---
+
+## Passo 9 — Download del gestionale
+
+Posizionati nella cartella web e scarica il progetto:
+
+```bash
+cd /var/www
+git clone https://github.com/samueleattina04/gestione_clientiavr.git gestionale
+cd gestionale
+```
+
+Installa le dipendenze PHP:
+
+```bash
+composer install --optimize-autoloader --no-dev
+```
+
+---
+
+## Passo 10 — Configurazione .env
+
+Copia il file di configurazione:
+
+```bash
+cp .env.example .env
+```
+
+Modifica il file:
+
+```bash
+nano .env
+```
+
+Compila con i tuoi dati:
 
 ```env
 APP_NAME="A.V.R. Informatica"
-APP_ENV=local
+APP_ENV=production
 APP_KEY=
 APP_DEBUG=false
-APP_URL=http://localhost:8000
+APP_URL=https://tuodominio.it
 
-# ── Database ──────────────────────────────────────
+APP_LOCALE=it
+APP_FALLBACK_LOCALE=it
+
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_DATABASE=avr_gestionale
-DB_USERNAME=root
-DB_PASSWORD=TUA_PASSWORD_MYSQL
+DB_USERNAME=avr_user
+DB_PASSWORD=ScegliunaPasswordSicura!
 
-# ── Sessioni e cache ───────────────────────────────
 SESSION_DRIVER=file
 SESSION_LIFETIME=480
 CACHE_STORE=file
 
-# ── Email SMTP (Gmail) ─────────────────────────────
 MAIL_MAILER=smtp
-MAIL_HOST=smtp.gmail.com
+MAIL_HOST=smtp.office365.com
 MAIL_PORT=587
-MAIL_USERNAME=tua@gmail.com
-MAIL_PASSWORD=xxxxxxxxxxxxxxxx
-MAIL_ENCRYPTION=tls
-MAIL_FROM_ADDRESS="info@avrinformatica.it"
+MAIL_USERNAME=tua@email.it
+MAIL_PASSWORD=tuapassword
+MAIL_ENCRYPTION=starttls
+MAIL_FROM_ADDRESS="tua@email.it"
 MAIL_FROM_NAME="A.V.R. Informatica"
 
-# ── Notifiche rivenditore ──────────────────────────
-RESELLER_EMAIL=tua@gmail.com
+RESELLER_EMAIL=tua@email.it
 RESELLER_NAME="A.V.R. Informatica"
 ```
 
-> ⚠️ **MAIL_PASSWORD**: non usare la password Gmail normale. Segui il Passo 8 per ottenere l'App Password.
+Salva con **Ctrl+X → Y → Invio**.
 
----
-
-## Passo 8 — Configura l'App Password Gmail
-
-Le email automatiche vengono inviate tramite Gmail. Per farlo serve un'**App Password**:
-
-1. Vai su https://myaccount.google.com
-2. Clicca su **Sicurezza**
-3. Attiva la **Verifica in due passaggi** (se non già attiva)
-4. Torna in Sicurezza → cerca **"Password per le app"**
-5. Seleziona: App → **Posta** / Dispositivo → **Windows**
-6. Clicca **Genera**
-7. Copia la password di 16 caratteri (es. `abcdabcdabcdabcd`)
-8. Incollala nel `.env` come `MAIL_PASSWORD=abcdabcdabcdabcd` **(senza spazi)**
-
----
-
-## Passo 9 — Genera la chiave e le tabelle
+Genera la chiave dell'app:
 
 ```bash
 php artisan key:generate
+```
+
+---
+
+## Passo 11 — Database e dati iniziali
+
+```bash
 php artisan migrate --seed
 ```
 
-Il comando `--seed` crea automaticamente:
-- Le **12 licenze Microsoft 365** pre-caricate
+Questo crea tutte le tabelle e inserisce:
+- Le 12 licenze Microsoft 365 pre-caricate
 - L'utente amministratore
 
 ---
 
-## Passo 10 — Avvia il gestionale
+## Passo 12 — Permessi cartelle
 
 ```bash
-php artisan serve
+chown -R www-data:www-data /var/www/gestionale
+chmod -R 755 /var/www/gestionale
+chmod -R 775 /var/www/gestionale/storage
+chmod -R 775 /var/www/gestionale/bootstrap/cache
 ```
-
-Apri il browser su: **http://localhost:8000**
-
-**Credenziali di accesso:**
-- Email: `admin@avrinformatica.it`
-- Password: `avr2024!`
-
-> ⚠️ Cambia la password dopo il primo accesso dal database MySQL:
-> ```sql
-> UPDATE users SET password = '$2y$12$NUOVA_HASH' WHERE email = 'admin@avrinformatica.it';
-> ```
-> Oppure chiedi al tecnico di aggiungere una funzione di cambio password.
 
 ---
 
-## Passo 11 — Sostituisci i loghi
+## Passo 13 — Configurazione Apache (Virtual Host)
 
-Copia i file immagine nella cartella `public\img\`:
+Crea il file di configurazione del sito:
 
-| File | Utilizzo |
-|------|---------|
-| `logo.png` | Icona quadrata nella sidebar e favicon |
-| `banner.png` | Banner orizzontale nella login e nelle email |
-
----
-
-## Email automatiche — Come funzionano
-
-Il sistema invia email automaticamente **senza nessuna configurazione aggiuntiva**:
-
-- Ogni volta che si apre il gestionale, l'app verifica le scadenze
-- Se un abbonamento sta per scadere, invia automaticamente:
-  - **6 mesi prima** → email di preavviso
-  - **1 mese prima** → email di avviso
-  - **1 settimana prima** → email urgente
-- Ogni email viene inviata **una sola volta** per evitare duplicati
-- Ricevi una copia tu (rivenditore) e una il cliente
-
-**Requisito:** il gestionale deve essere aperto almeno una volta al giorno.
-
----
-
-## Installazione su server con IIS (produzione)
-
-Se vuoi hostare il gestionale su un server Windows con IIS:
-
-### 1. Installa PHP per IIS
-Usa **Web Platform Installer** o scarica PHP e configuralo come FastCGI in IIS.
-
-### 2. Configura il sito IIS
-- Il **Document Root** deve puntare alla cartella `public\` del progetto, non alla radice
-- Esempio: se il progetto è in `C:\inetpub\gestionale`, il percorso fisico del sito IIS è `C:\inetpub\gestionale\public`
-
-### 3. Aggiungi il file web.config
-Crea il file `public\web.config` con questo contenuto:
-
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<configuration>
-  <system.webServer>
-    <rewrite>
-      <rules>
-        <rule name="Laravel Routes" stopProcessing="true">
-          <match url="^(.*)$" />
-          <conditions>
-            <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="true" />
-            <add input="{REQUEST_FILENAME}" matchType="IsDirectory" negate="true" />
-          </conditions>
-          <action type="Rewrite" url="index.php/{R:1}" />
-        </rule>
-      </rules>
-    </rewrite>
-  </system.webServer>
-</configuration>
-```
-
-### 4. Aggiorna il .env per la produzione
-```env
-APP_ENV=production
-APP_DEBUG=false
-APP_URL=https://tuodominio.it
-```
-
-### 5. Ottimizza per la produzione
 ```bash
+nano /etc/apache2/sites-available/gestionale.conf
+```
+
+Incolla questo contenuto (sostituisci `tuodominio.it` con il tuo dominio):
+
+```apache
+<VirtualHost *:80>
+    ServerName tuodominio.it
+    ServerAlias www.tuodominio.it
+    DocumentRoot /var/www/gestionale/public
+
+    <Directory /var/www/gestionale/public>
+        Options -Indexes +FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
+
+    ErrorLog ${APACHE_LOG_DIR}/gestionale_error.log
+    CustomLog ${APACHE_LOG_DIR}/gestionale_access.log combined
+</VirtualHost>
+```
+
+Salva con **Ctrl+X → Y → Invio**.
+
+Abilita il sito e riavvia Apache:
+
+```bash
+a2ensite gestionale.conf
+a2dissite 000-default.conf
+systemctl restart apache2
+```
+
+---
+
+## Passo 14 — Certificato SSL (HTTPS gratuito)
+
+Installa Certbot per il certificato SSL gratuito Let's Encrypt:
+
+```bash
+apt install -y certbot python3-certbot-apache
+certbot --apache -d tuodominio.it -d www.tuodominio.it
+```
+
+Segui le istruzioni a schermo. Certbot configurerà HTTPS automaticamente.
+
+Aggiorna `APP_URL` nel `.env`:
+
+```bash
+nano /var/www/gestionale/.env
+# Cambia APP_URL=https://tuodominio.it
+```
+
+Poi:
+
+```bash
+php artisan config:cache
+```
+
+Il certificato si rinnova automaticamente. Per verificare:
+
+```bash
+certbot renew --dry-run
+```
+
+---
+
+## Passo 15 — Ottimizzazione per produzione
+
+```bash
+cd /var/www/gestionale
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 ```
 
-### 6. Logo nelle email in produzione
-Con `APP_URL` impostato al dominio reale, il logo apparirà automaticamente nelle email. Non serve nessuna configurazione aggiuntiva.
+---
+
+## Passo 16 — Loghi
+
+Copia i file immagine nella cartella `public/img/`:
+
+```bash
+# Dal tuo PC, carica i file con SCP:
+scp logo.png root@IP_SERVER:/var/www/gestionale/public/img/logo.png
+scp banner.png root@IP_SERVER:/var/www/gestionale/public/img/banner.png
+```
+
+Oppure usa un client FTP/SFTP come **FileZilla**.
 
 ---
 
-## Risoluzione problemi comuni
+## Passo 17 — Primo accesso
 
-### "could not find driver" (SQLite)
-Il file `.env` ha ancora `DB_CONNECTION=sqlite`. Assicurati che sia `DB_CONNECTION=mysql`.
+Apri il browser su `https://tuodominio.it`
 
-### "Table sessions doesn't exist"
-Il file `.env` ha `SESSION_DRIVER=database`. Cambia in `SESSION_DRIVER=file`.
+**Credenziali di accesso:**
+- Email: `admin@avrinformatica.it`
+- Password: `avr2024!`
 
-### Variabili duplicate nel .env
-Se hai la stessa variabile due volte, PHP usa l'ultima. Rimuovi i duplicati.
+> ⚠️ **Cambia subito la password** dal menu impostazioni (rotellina ⚙️ in basso a sinistra nella sidebar).
 
-### "Failed to parse dotenv file. Encountered unexpected whitespace"
-L'App Password Gmail è stata incollata con spazi. Rimuovili: `abcd abcd abcd abcd` → `abcdabcdabcdabcd`.
+---
 
-### Email non arrivano
-1. Verifica che `MAIL_USERNAME` e `MAIL_PASSWORD` siano corretti nel `.env`
-2. Esegui `php artisan config:clear` dopo ogni modifica al `.env`
-3. Testa con: `php artisan subscriptions:check-expiring`
-4. Controlla la cartella Spam del destinatario
+## Configurazione email SMTP Microsoft (Outlook / Microsoft 365)
+
+Dopo aver effettuato l'accesso, clicca sulla **rotellina ⚙️** accanto al tuo nome nella sidebar e vai su **Configurazione Email SMTP**.
+
+Clicca il pulsante **"Outlook / Microsoft 365"** per precompilare automaticamente i campi, poi:
+
+| Campo | Valore |
+|-------|--------|
+| Server SMTP | `smtp.office365.com` |
+| Porta | `587` |
+| Cifratura | `STARTTLS` |
+| Email mittente | la tua email Microsoft (es. `info@avrinformatica.it`) |
+| Password SMTP | la password del tuo account Microsoft |
+| Nome mittente | `A.V.R. Informatica` |
+
+> 💡 **Se hai l'autenticazione a due fattori (MFA) attiva** su Microsoft 365, devi generare una **App Password**:
+> 1. Vai su [myaccount.microsoft.com](https://myaccount.microsoft.com)
+> 2. Sicurezza → Verifica in due passaggi → App Password
+> 3. Crea una nuova App Password e usala al posto della password normale
+
+Clicca **Salva Configurazione**, poi **Invia Email di Test** per verificare che funzioni.
+
+Le email vengono inviate automaticamente ogni giorno alla prima apertura del gestionale senza nessuna configurazione aggiuntiva.
 
 ---
 
 ## Aggiornamenti futuri
 
-Per aggiornare il gestionale a una versione più recente:
+Per aggiornare il gestionale a una nuova versione:
 
 ```bash
+cd /var/www/gestionale
 git pull origin main
-composer install
+composer install --optimize-autoloader --no-dev
 php artisan migrate
 php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+```
+
+---
+
+## Risoluzione problemi comuni
+
+### Errore 500 dopo l'installazione
+```bash
+# Controlla i log
+tail -f /var/www/gestionale/storage/logs/laravel.log
+tail -f /var/log/apache2/gestionale_error.log
+```
+
+### Permessi negati su storage
+```bash
+chmod -R 775 /var/www/gestionale/storage
+chown -R www-data:www-data /var/www/gestionale/storage
+```
+
+### Email non arrivano
+1. Verifica le impostazioni SMTP nella rotellina ⚙️ impostazioni admin
+2. Usa il pulsante **"Invia Email di Test"** per diagnosticare
+3. Controlla che la porta 587 non sia bloccata dal firewall del server:
+   ```bash
+   ufw allow out 587
+   ```
+
+### Il sito non si apre dopo aver puntato il DNS
+La propagazione DNS richiede fino a 24 ore. Verifica che il record A sia corretto su Filehost.
+
+### mod_rewrite non funziona (URL non trovati)
+```bash
+a2enmod rewrite
+systemctl restart apache2
 ```
 
 ---
