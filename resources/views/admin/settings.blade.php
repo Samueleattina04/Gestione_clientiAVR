@@ -15,9 +15,9 @@
             <input type="text" name="name" class="form-control" value="{{ old('name', auth()->user()->name) }}" required>
           </div>
           <div class="mb-3">
-            <label class="form-label">Email account</label>
-            <input type="text" class="form-control" value="{{ auth()->user()->email }}" disabled>
-            <div class="form-text">L'email account non è modificabile da qui.</div>
+            <label class="form-label required-label">Email account</label>
+            <input type="email" name="email" class="form-control" value="{{ old('email', auth()->user()->email) }}" required>
+            <div class="form-text">Usata per il login e per ricevere i promemoria di reset password.</div>
           </div>
           <button type="submit" class="btn btn-avr"><i class="bi bi-check-lg me-2"></i>Salva Profilo</button>
         </form>

@@ -23,6 +23,7 @@ class AdminSettingsController extends Controller
     {
         $data = $request->validate([
             'name'  => 'required|string|max:100',
+            'email' => 'required|email|unique:users,email,' . Auth::id(),
         ]);
         Auth::user()->update($data);
         return back()->with('success', 'Profilo aggiornato!');
