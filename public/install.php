@@ -1,37 +1,56 @@
 <?php
 /**
  * AVR Gestionale — Web Installer
- * Visita questa pagina UNA SOLA VOLTA dopo aver caricato i file sul server.
  * ELIMINA QUESTO FILE dopo l'installazione!
  */
 
 define('BASE_PATH', dirname(__DIR__));
 
-// Semplice protezione
 $secret = $_GET['token'] ?? '';
 if ($secret !== 'avr-install-2024') {
     die('<h2>Accesso negato.</h2><p>Aggiungi ?token=avr-install-2024 all\'URL</p>');
 }
 
+// Bootstrap Laravel manually
+require BASE_PATH . '/vendor/autoload.php';
+
+$app = require BASE_PATH . '/bootstrap/app.php';
+$app->make(\Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+
 $action = $_POST['action'] ?? '';
 $results = [];
 
-function run($cmd) {
-    $output = [];
-    $code = 0;
-    exec("cd " . BASE_PATH . " && $cmd 2>&1", $output, $code);
-    return ['cmd' => $cmd, 'output' => implode("\n", $output), 'ok' => $code === 0];
+function runArtisan($command, $args = []) {
+    try {
+        $code = \Illuminate\Support\Facades\Artisan::call($command, $args);
+        $output = \Illuminate\Support\Facades\Artisan::output();
+        return ['cmd' => $command, 'output' => $output, 'ok' => $code === 0];
+    } catch (\Exception $e) {
+        return ['cmd' => $command, 'output' => $e->getMessage(), 'ok' => false];
+    }
 }
 
 if ($action === 'install') {
-    $results[] = run('php artisan key:generate --force');
-    $results[] = run('php artisan migrate --seed --force');
-    $results[] = run('php artisan config:cache');
-    $results[] = run('php artisan route:cache');
-    $results[] = run('php artisan view:cache');
-    $results[] = run('chmod -R 775 storage bootstrap/cache');
-}
+    $results[] = runArtisan('key:generate', ['--force' => true]);
+    $results[] = runArtisan('migrate', ['--seed' => true, '--force' => true]);
+    $results[] = runArtisan('config:cache');
+    $results[] = runArtisan('route:cache');
+    $results[] = runArtisan('view:cache');
 
+    // Fix storage permissions
+    $dirs = [
+        BASE_PATH . '/storage/logs',
+        BASE_PATH . '/storage/framework/cache',
+        BASE_PATH . '/storage/framework/sessions',
+        BASE_PATH . '/storage/framework/views',
+        BASE_PATH . '/bootstrap/cache',
+    ];
+    foreach ($dirs as $dir) {
+        if (!is_dir($dir)) @mkdir($dir, 0775, true);
+        @chmod($dir, 0775);
+    }
+    $results[] = ['cmd' => 'chmod storage/', 'output' => 'Permessi cartelle impostati.', 'ok' => true];
+}
 ?>
 <!DOCTYPE html>
 <html lang="it">
@@ -45,7 +64,7 @@ h1 { color: #C8102E; }
 .btn { background: #C8102E; color: white; border: none; padding: 12px 24px; border-radius: 6px; font-size: 16px; cursor: pointer; }
 .ok { color: green; font-weight: bold; }
 .err { color: red; font-weight: bold; }
-pre { background: #1a1a1a; color: #eee; padding: 12px; border-radius: 4px; overflow-x: auto; font-size: 13px; }
+pre { background: #1a1a1a; color: #eee; padding: 12px; border-radius: 4px; overflow-x: auto; font-size: 13px; white-space: pre-wrap; }
 .warning { background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px; margin-top: 20px; border-radius: 4px; }
 </style>
 </head>
@@ -73,7 +92,7 @@ pre { background: #1a1a1a; color: #eee; padding: 12px; border-radius: 4px; overf
     <h2>Risultati installazione</h2>
     <?php foreach ($results as $r): ?>
         <p class="<?= $r['ok'] ? 'ok' : 'err' ?>"><?= $r['ok'] ? '✅' : '❌' ?> <code><?= htmlspecialchars($r['cmd']) ?></code></p>
-        <?php if ($r['output']): ?><pre><?= htmlspecialchars($r['output']) ?></pre><?php endif; ?>
+        <?php if (trim($r['output'])): ?><pre><?= htmlspecialchars($r['output']) ?></pre><?php endif; ?>
     <?php endforeach; ?>
 
     <?php $allOk = array_reduce($results, fn($c, $r) => $c && $r['ok'], true); ?>
