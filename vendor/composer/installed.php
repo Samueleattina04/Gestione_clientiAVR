@@ -3,7 +3,7 @@
         'name' => 'laravel/laravel',
         'pretty_version' => 'dev-claude/office365-customer-manager-kuoc96',
         'version' => 'dev-claude/office365-customer-manager-kuoc96',
-        'reference' => 'a18b50e553c9d715f2ab78ffc857df1792611b17',
+        'reference' => 'a1654497feab05d76d6a622e6fb7c7df91e5692c',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -382,7 +382,7 @@
         'laravel/laravel' => array(
             'pretty_version' => 'dev-claude/office365-customer-manager-kuoc96',
             'version' => 'dev-claude/office365-customer-manager-kuoc96',
-            'reference' => 'a18b50e553c9d715f2ab78ffc857df1792611b17',
+            'reference' => 'a1654497feab05d76d6a622e6fb7c7df91e5692c',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
