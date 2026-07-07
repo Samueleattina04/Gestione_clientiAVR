@@ -8,7 +8,7 @@
         @endforeach
         <option value="__new__">+ Inserisci nuova categoria…</option>
       </select>
-      <input type="text" name="category" id="catNew" class="form-control mt-2 d-none"
+      <input type="text" id="catNew" class="form-control mt-2 d-none"
              placeholder="Nome nuova categoria" value="{{ old('category') }}">
     </div>
     <button type="button" id="catBack" class="btn btn-outline-secondary d-none" title="Torna alla lista">
